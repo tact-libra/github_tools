@@ -1,0 +1,46 @@
+#!/usr/bin/python3
+import argparse, os
+
+def user_input(msg, _type):
+	while True:
+		try:
+			return _type(input(msg))
+		except TypeErorr as e:
+			print("Incorrect input")
+
+class Config:
+	CERT_DIR = f"{os.path.expanduser('~')}/.config/github/"
+	CERT_FILE = CERT_DIR + "certification"
+
+class TOOLS:
+	cmd = os.path.basename(__file__)
+	parser = argparse.ArgumentParser(
+		description="",
+		formatter_class=argparse.RawTextHelpFormatter
+	)
+	subparsers = parser.add_subparsers(required=True)
+
+	def __init__(self):
+		login = self.subparsers.add_parser("login", help=f"{self.cmd} login -h")
+		login.add_argument("--token", action='store_true')
+		login.set_defaults(subcommand_func=self.login)
+
+		self.args = self.parser.parse_args()
+
+	def main(self):
+		if hasattr(self.args, 'subcommand_func'):
+			self.args.subcommand_func()
+		else:
+			self.parser.print_help()
+
+	def login(self):
+		os.makedirs(f"{Config.CERT_DIR}", exist_ok=True)
+		if self.args.token:
+			token = user_input("token: ", str)
+			with open(f"{Config.CERT_FILE}", "w") as f:
+				f.write(token)
+		else:
+			print("Use '--token'.")
+
+
+TOOLS().main()
