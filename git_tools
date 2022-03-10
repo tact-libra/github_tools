@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 import argparse, os
+import requests
 
 def user_input(msg, _type):
 	while True:
@@ -12,6 +13,11 @@ class Config:
 	CERT_DIR = f"{os.path.expanduser('~')}/.config/github/"
 	CERT_FILE = CERT_DIR + "certification"
 
+	HOST_DOMAIN = "https://api.github.com"
+	REPOS = HOST_DOMAIN + "/repos"
+	USER_REPOS = HOST_DOMAIN + "/user/repos"
+
+
 class TOOLS:
 	cmd = os.path.basename(__file__)
 	parser = argparse.ArgumentParser(
@@ -21,17 +27,49 @@ class TOOLS:
 	subparsers = parser.add_subparsers(required=True)
 
 	def __init__(self):
+		#login
 		login = self.subparsers.add_parser("login", help=f"{self.cmd} login -h")
 		login.add_argument("--token", action='store_true')
 		login.set_defaults(subcommand_func=self.login)
 
-		self.args = self.parser.parse_args()
+		#create
+		create = self.subparsers.add_parser("create", help=f"{self.cmd} create -h")
+		create.add_argument("name", help="Name of repository to create.")
+		create_public = create.add_mutually_exclusive_group()
+		create_public.add_argument("--public", dest="private", action='store_false', help="Create in public repository. (default)")
+		create_public.add_argument("--private", dest="private", action='store_true', help="Create in private repository.")
+		create.set_defaults(private=False, subcommand_func=self.create)
 
-	def main(self):
+		#delete
+		delete = self.subparsers.add_parser("delete", help=f"{self.cmd} delete -h")
+		delete.add_argument("owner", help="owner of repository to delete.")
+		delete.add_argument("name", help="name of repository to delete.")
+		delete.set_defaults(subcommand_func=self.delete)
+
+		#list
+		list_ = self.subparsers.add_parser("list", help=f"{self.cmd} list -h")
+		list_.set_defaults(subcommand_func=self.list_)
+
+		#run
+		self.token = self._get_token()
+		self.args = self.parser.parse_args()
+		print(self.args)
 		if hasattr(self.args, 'subcommand_func'):
 			self.args.subcommand_func()
 		else:
 			self.parser.print_help()
+
+	def _get_token(self):
+		if os.path.isfile(Config.CERT_FILE):
+			with open(Config.CERT_FILE) as f:
+				token = f.read().splitlines()[0]
+			return token
+		else:
+			return None
+
+	def _post(self, func, url, headers={}, **kwargs):
+		headers["Authorization"] = "token " + self._get_token()
+		return func(url, headers=headers, **kwargs)
 
 	def login(self):
 		os.makedirs(f"{Config.CERT_DIR}", exist_ok=True)
@@ -42,5 +80,34 @@ class TOOLS:
 		else:
 			print("Use '--token'.")
 
+	def create(self):
+		if not self._get_token():
+			return print("Please login")
+		res = self._post(requests.post, Config.USER_REPOS, json={
+			"name": self.args.name,
+			"private": self.args.private
+		})
+		if res.status_code == 201:
+			print("success")
+		else:
+			print(res.__dict__)
 
-TOOLS().main()
+	def delete(self):
+		if not self._get_token():
+			return print("Please login")
+		res = self._post(requests.delete, f"{Config.REPOS}/{self.args.owner}/{self.args.name}")
+		if res.status_code == 204:
+			print("success")
+		else:
+			print(res.__dict__)
+
+	def list_(self):
+		if not self._get_token():
+			return print("Please login")
+		res = self._post(requests.get, Config.USER_REPOS)
+		if res.status_code == 200:
+			data = [i["full_name"] for i in res.json()]
+			print("\n".join(sorted(data)))
+
+
+TOOLS()
