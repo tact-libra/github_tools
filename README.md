@@ -8,6 +8,7 @@
 
 - create
 	- organizationに対しても使えるようにする
+	- gitignore_template, auto_init等もいじれるようにする
 
 - delete
 	- owner未指定時はtokenのユーザーをデフォルトにする
