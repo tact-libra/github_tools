@@ -6,6 +6,9 @@
 - login
 	- トークン発行も出来るようにする(oauth2)
 
+- profile
+	- 見た目揃えたい
+
 - create
 	- organizationに対しても使えるようにする
 	- gitignore_template, auto_init等もいじれるようにする
@@ -16,3 +19,7 @@
 - list
 	- orgの表示はオプションで制御する
 
+
+
+##
+issue待ってますはぁと(適当)
