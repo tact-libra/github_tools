@@ -4,7 +4,7 @@ with open("requirements.txt") as f:
   req = f.read().splitlines()
 
 setuptools.setup(
-  name="gh_tools",
+  name="gh-tools",
   version="0.1",
   author="kurages",
   author_email="kurages.git@outlook.jp",
