@@ -18,6 +18,20 @@
 
 - list
 	- orgの表示はオプションで制御する
+	- オプション次第でフォロワーだったりスター済みだったり他のも表示させたい
+
+- 未実装
+	- issue
+	- gist
+		- new
+		- edit
+		- clone
+	- search
+		- user
+		- repo
+		- issue
+		- commit
+	- pullrequest
 
 
 
