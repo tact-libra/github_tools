@@ -1,5 +1,6 @@
 import argparse, os
 import requests
+from .config import Config
 
 def user_input(msg, _type):
 	while True:
@@ -7,16 +8,6 @@ def user_input(msg, _type):
 			return _type(input(msg))
 		except TypeErorr as e:
 			print("Incorrect input")
-
-class Config:
-	CERT_DIR = f"{os.path.expanduser('~')}/.config/github/"
-	CERT_FILE = CERT_DIR + "certification"
-
-	HOST_DOMAIN = "https://api.github.com"
-	USER = HOST_DOMAIN + "/user"
-	REPOS = HOST_DOMAIN + "/repos"
-	USER_REPOS = HOST_DOMAIN + "/user/repos"
-	ORG_REPOS = HOST_DOMAIN + "/orgs/{}/repos"
 
 class Tools:
 	cmd = os.path.basename(__file__)
