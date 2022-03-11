@@ -1,4 +1,4 @@
-import argparse, os
+import argparse, os, urllib.parse, time
 from requests import (
 	get,
 	post,
@@ -24,6 +24,7 @@ class Tools:
 		description="",
 		formatter_class=argparse.RawTextHelpFormatter
 	)
+	parser.add_argument('--version', action='version', version='%(prog)s 0.1')
 	parser.add_argument("--user", help="")
 	subparsers = parser.add_subparsers()
 
@@ -79,18 +80,48 @@ class Tools:
 		token = None
 		if self.args.token:
 			token = user_input("token: ", str)
-			res = self._request(
-				get, Config.USER,
-				headers={"Authorization": f"token {token}"},
-				chklogin=(token==None)
-			)
-			if res.status_code == 200:
-				data = res.json()
-				self.user.set_token(data["login"], token, data)
-			else:
-				print("authentication failure")
 		else:
-			print("Use '--token'.")
+			req = post(
+				Config.CREATE_SESSION_URL,
+				headers={"Accept": "application/json"},
+				params={"client_id": Config.CLIENT_ID,
+					"scope":"repo delete_repo gist user"
+				}
+			).json()
+			device_code = req["device_code"]
+			print(req["verification_uri"])
+			print(req["user_code"])
+			while True:
+				res = post(
+					Config.CHK_VERIFICATE_URL,
+					headers={"Accept": "application/json"},
+					params={
+						"client_id": Config.CLIENT_ID,
+						"device_code":device_code,
+						"grant_type":"urn:ietf:params:oauth:grant-type:device_code"
+					}
+				).json()
+				print(res)
+				error = res.get("error", None)
+				if res.get("access_token", None) != None:
+					token = res.get("access_token", None)
+					break
+				elif error == "authorization_pending":
+					time.sleep(6)
+				elif error == "slow_down":
+					time.sleep(res["interval"])
+				elif error:
+					return
+		res = self._request(
+			get, Config.USER,
+			headers={"Authorization": f"token {token}"},
+			chklogin=False
+		)
+		if res.status_code == 200:
+			data = res.json()
+			self.user.set_token(data["login"], token, data)
+		else:
+			print("authentication failure")
 		if token:
 			self.profile()
 

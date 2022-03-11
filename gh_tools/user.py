@@ -40,10 +40,13 @@ class User:
 		return self.data.get(name, {}).get("x-gh-token", None)
 
 	def set_token(self, name, token, val={}, default=None):
-		if default == None and self.data == {}:
-			default = True
-		elif default == None:
-			default = False
+		if default == None:
+			if self.data == {}:
+				default = True
+			elif list(self.data.keys()) == [name]:
+				default = True
+			else:
+				default = False
 		self.data[name] = val
 		self.data[name]["x-gh-token"] = token
 		self.data[name]["x-gh-default"] = default
