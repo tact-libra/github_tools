@@ -1,6 +1,13 @@
 import argparse, os
-import requests
+from requests import (
+	get,
+	post,
+	delete,
+	Response
+)
 from .config import Config
+from .user import User
+
 
 def user_input(msg, _type):
 	while True:
@@ -9,13 +16,16 @@ def user_input(msg, _type):
 		except TypeErorr as e:
 			print("Incorrect input")
 
+
 class Tools:
-	cmd = os.path.basename(__file__)
+	user = User()
+	cmd = os.path.splitext(os.path.basename(__file__))[0]
 	parser = argparse.ArgumentParser(
 		description="",
 		formatter_class=argparse.RawTextHelpFormatter
 	)
-	subparsers = parser.add_subparsers() #required=True)
+	parser.add_argument("--user", help="")
+	subparsers = parser.add_subparsers()
 
 	def __init__(self):
 		#login
@@ -47,35 +57,36 @@ class Tools:
 		list_.set_defaults(subcommand_func=self.list_)
 
 		#run
-		self.token = self._get_token()
 		self.args = self.parser.parse_args()
-		print(self.args)
+		if self.args.user:
+			if self.args.user in self.user.get_user_list():
+				self.user.select_user = self.args.user
+			else:
+				return print("Incorrect argument: user")
 		if hasattr(self.args, 'subcommand_func'):
 			self.args.subcommand_func()
 		else:
 			self.parser.print_help()
 
-	def _get_token(self):
-		if os.path.isfile(Config.CERT_FILE):
-			with open(Config.CERT_FILE) as f:
-				token = f.read().splitlines()[0]
-			return token
-		else:
-			return None
-
-	def _post(self, func, url, headers={}, **kwargs):
-		headers["Authorization"] = "token " + self._get_token()
+	def _request(self, func, url, headers={}, **kwargs):
+		if kwargs.pop("chklogin", True) and not self.user.get_token():
+			return Response()
+		headers.setdefault("Authorization", "token " + str(self.user.get_token()))
 		return func(url, headers=headers, **kwargs)
 
 	def login(self):
-		os.makedirs(f"{Config.CERT_DIR}", exist_ok=True)
+		os.makedirs(f"{Config.CONFIG_DIR}", exist_ok=True)
 		token = None
 		if self.args.token:
 			token = user_input("token: ", str)
-			code, _ = self.profile(token)
-			if code == 200:
-				with open(f"{Config.CERT_FILE}", "w") as f:
-					f.write(token)
+			res = self._request(
+				get, Config.USER,
+				headers={"Authorization": f"token {token}"},
+				chklogin=(token==None)
+			)
+			if res.status_code == 200:
+				data = res.json()
+				self.user.set_token(data["login"], token, data)
 			else:
 				print("authentication failure")
 		else:
@@ -83,26 +94,22 @@ class Tools:
 		if token:
 			self.profile()
 
-	def profile(self, token=None):
-		if (not token and not self._get_token()):
-			return print("Please login")
-		res = self._post(requests.get, Config.USER)
+	def profile(self):
+		res = self._request(get, Config.USER)
 		if res.status_code == 200:
 			data = res.json()
 			print(f"username\t{data['name']}")
 			print(f"userid\t{data['login']}")
 		#else:
-		print(res.json())
+			print(res.json())
 		return (res.status_code, res)
 
 	def create(self):
-		if not self._get_token():
-			return print("Please login")
 		if self.args.org:
 			url = Config.ORG_REPOS.format(self.args.org)
 		else:
 			url = Config.USER_REPOS
-		res = self._post(requests.post, url, json={
+		res = self._request(post, url, json={
 			"name": self.args.name,
 			"private": self.args.private
 		})
@@ -113,9 +120,7 @@ class Tools:
 		return (res.status_code, res)
 
 	def delete(self):
-		if not self._get_token():
-			return print("Please login")
-		res = self._post(requests.delete, f"{Config.REPOS}/{self.args.owner}/{self.args.name}")
+		res = self._request(delete, f"{Config.REPOS}/{self.args.owner}/{self.args.name}")
 		if res.status_code == 204:
 			print("success")
 		else:
@@ -123,11 +128,9 @@ class Tools:
 		return (res.status_code, res)
 
 	def list_(self):
-		if not self._get_token():
-			return print("Please login")
-		res = self._post(requests.get, Config.USER_REPOS)
+		res = self._request(get, Config.USER_REPOS)
 		if res.status_code == 200:
-			data = [i["full_name"] for i in res.json()]
+			data = [str((i["full_name"], i["owner"]["type"])) for i in res.json()]
 			print("\n".join(sorted(data)))
 		return (res.status_code, res)
 
