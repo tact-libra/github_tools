@@ -71,9 +71,13 @@ class Tools:
 
 	def _request(self, func, url, headers={}, **kwargs):
 		if kwargs.pop("chklogin", True) and not self.user.get_token():
+			print("need to log in")
 			return Response()
 		headers.setdefault("Authorization", "token " + str(self.user.get_token()))
-		return func(url, headers=headers, **kwargs)
+		result = func(url, headers=headers, **kwargs)
+		if result.status_code == 401:
+			print("need to log in")
+		return result
 
 	def login(self):
 		os.makedirs(f"{Config.CONFIG_DIR}", exist_ok=True)
@@ -84,9 +88,15 @@ class Tools:
 			req = post(
 				Config.CREATE_SESSION_URL,
 				headers={"Accept": "application/json"},
-				params={"client_id": Config.CLIENT_ID,
-					"scope":"repo delete_repo gist user"
-				}
+				params={"client_id": Config.CLIENT_ID,"scope": " ".join([
+						"repo",
+						"public_repo",
+						"repo_deployment",
+						"delete_repo",
+						"security_events",
+						"gist",
+						"user"
+				])}
 			).json()
 			device_code = req["device_code"]
 			print(req["verification_uri"])
@@ -101,7 +111,6 @@ class Tools:
 						"grant_type":"urn:ietf:params:oauth:grant-type:device_code"
 					}
 				).json()
-				print(res)
 				error = res.get("error", None)
 				if res.get("access_token", None) != None:
 					token = res.get("access_token", None)
