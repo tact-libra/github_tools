@@ -44,6 +44,9 @@ class Tools:
 		create_private = create.add_mutually_exclusive_group()
 		create_private.add_argument("--public", dest="private", action='store_false', help="Create in public repository. (default)")
 		create_private.add_argument("--private", dest="private", action='store_true', help="Create in private repository.")
+		create.add_argument("--description")
+		create.add_argument("--licence", help="set repository licence")
+		create.add_argument("--gitignore")
 		create.add_argument("--org", help="set org name")
 		create.set_defaults(private=False, subcommand_func=self.create)
 
@@ -151,7 +154,10 @@ class Tools:
 			url = Config.USER_REPOS
 		res = self._request(post, url, json={
 			"name": self.args.name,
-			"private": self.args.private
+			"description": self.args.description,
+			"private": self.args.private,
+			"license_template": self.args.licence,
+			"gitignore_template": self.args.gitignore
 		})
 		if res.status_code == 201:
 			print("success")

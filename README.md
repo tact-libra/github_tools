@@ -11,7 +11,7 @@
 
 - create
 	- ~~organizationに対しても使えるようにする~~ -> ok
-	- gitignore_template, auto_init等もいじれるようにする
+	- ~~gitignore_template, auto_init等もいじれるようにする~~
 
 - delete
 	- owner未指定時はtokenのユーザーをデフォルトにする
@@ -33,6 +33,9 @@
 		- issue
 		- commit
 	- pullrequest
+
+肥大化しそうなので処理ごとにclass作ってファイルをわける
+ついでにコマンドもrepoとかuserごとに処理作る
 
 
 ## 検討中
