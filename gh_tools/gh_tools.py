@@ -18,13 +18,13 @@ class Config:
 	USER_REPOS = HOST_DOMAIN + "/user/repos"
 	ORG_REPOS = HOST_DOMAIN + "/orgs/{}/repos"
 
-class TOOLS:
+class Tools:
 	cmd = os.path.basename(__file__)
 	parser = argparse.ArgumentParser(
 		description="",
 		formatter_class=argparse.RawTextHelpFormatter
 	)
-	subparsers = parser.add_subparsers(required=True)
+	subparsers = parser.add_subparsers() #required=True)
 
 	def __init__(self):
 		#login
@@ -141,4 +141,9 @@ class TOOLS:
 		return (res.status_code, res)
 
 
-TOOLS()
+
+def main():
+	Tools()
+
+if __name__ == '__main__':
+	main()

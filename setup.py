@@ -18,7 +18,7 @@ setuptools.setup(
     "Operating System :: OS Independent",
   ],
   entry_points = {
-    'console_scripts': ['gh_tools = src.gh_tools:main']
+    'console_scripts': ['gh_tools = gh_tools.gh_tools:main']
   },
   python_requires='>=3.6'
 )
