@@ -3,10 +3,11 @@ from requests import (
 	post,
 	delete,
 )
+from .config import Config
 
 class Repo:
 	def __init__(self):
-		repo = repo.add_parser(
+		repo = self.subparsers.add_parser(
 			"repo",
 			help=f"{self.cmd} repo -h"
 		).add_subparsers()
@@ -21,19 +22,21 @@ class Repo:
 		create.add_argument("--licence", help="set repository licence")
 		create.add_argument("--gitignore")
 		create.add_argument("--org", help="set org name")
-		create.set_defaults(private=False, subcommand_func=self.repo_create)
+		create.set_defaults(private=False, subcommand_func=self.create_repo)
 
 		#delete
 		delete = repo.add_parser("delete", help=f"{self.cmd} delete -h")
 		delete.add_argument("owner", help="owner of repository to delete.")
 		delete.add_argument("name", help="name of repository to delete.")
-		delete.set_defaults(subcommand_func=self.repo_delete)
+		delete.set_defaults(subcommand_func=self.delete_repo)
 
 		#list
 		list_ = repo.add_parser("list", help=f"{self.cmd} list -h")
-		list_.set_defaults(subcommand_func=self.repo_list)
+		list_.add_argument("--all", action="store_true")
+		list_.add_argument("--org")
+		list_.set_defaults(subcommand_func=self.list_repo)
 
-	def repo_create(self):
+	def create_repo(self):
 		if self.args.org:
 			url = Config.ORG_REPOS.format(self.args.org)
 		else:
@@ -51,7 +54,7 @@ class Repo:
 			print(res.__dict__)
 		return (res.status_code, res)
 
-	def repo_delete(self):
+	def delete_repo(self):
 		res = self._request(delete, f"{Config.REPOS}/{self.args.owner}/{self.args.name}")
 		if res.status_code == 204:
 			print("success")
@@ -59,10 +62,15 @@ class Repo:
 			print(res.__dict__)
 		return (res.status_code, res)
 
-	def repo_list(self):
+	def list_repo(self):
 		res = self._request(get, Config.USER_REPOS)
 		if res.status_code == 200:
-			data = [str((i["full_name"], i["owner"]["type"])) for i in res.json()]
+			if self.args.all:
+				data = [i["full_name"] for i in res.json()]
+			elif self.args.org:
+				data = [i["name"] for i in res.json() if self.args.org == i["owner"]["login"]]
+			else:
+				data = [i["name"] for i in res.json() if self.get_user_id(self.select_user) == i["owner"]["id"]]
 			print("\n".join(sorted(data)))
 		return (res.status_code, res)
 

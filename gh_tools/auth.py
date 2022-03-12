@@ -1,4 +1,4 @@
-import time
+import time, os
 from requests import (
 	get,
 	post
@@ -88,6 +88,19 @@ class Auth:
 			token = user_input("token: ", str)
 		else:
 			token = self.device_flow()
-		
+		res = self._request(
+			get, Config.USER,
+			headers={"Authorization": f"token {token}"},
+			chklogin=False
+		)
+		if res.status_code == 200:
+			data = res.json()
+			self.set_token(data["login"], token, {
+				"login": data["login"],
+				"id": data["id"],
+				"name": data["name"]
+			})
+		else:
+			print("authentication failure")
 
 

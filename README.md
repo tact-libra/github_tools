@@ -3,28 +3,21 @@
 
 
 ## 課題
-- login
-	- ~~トークン発行も出来るようにする(oauth2)~~ -> ok
+- repo
+	- delete
+		- owner未指定時はtokenのユーザーをデフォルトにする
 
-- profile
-	- 見た目揃えたい
+	- list
+		- orgの表示はオプションで制御する
 
-- create
-	- ~~organizationに対しても使えるようにする~~ -> ok
-	- ~~gitignore_template, auto_init等もいじれるようにする~~
-
-- delete
-	- owner未指定時はtokenのユーザーをデフォルトにする
-
-- list
-	- orgの表示はオプションで制御する
+- user
 	- オプション次第でフォロワーだったりスター済みだったり他のも表示させたい
 
 
 - 未実装
 	- issue
 	- gist
-		- new
+		- create
 		- edit
 		- clone
 	- search
@@ -34,12 +27,10 @@
 		- commit
 	- pullrequest
 
-肥大化しそうなので処理ごとにclass作ってファイルをわける
-ついでにコマンドもrepoとかuserごとに処理作る
+~~ 肥大化しそうなので処理ごとにclass作ってファイルをわける
+ついでにコマンドもrepoとかuserごとに処理作る ~~ -> ok
 
 
-## 検討中
-list --repoみたいにするよりrepo --listにしたほうが使いやすいかも
 
 ##
 issue待ってますはぁと(適当)
