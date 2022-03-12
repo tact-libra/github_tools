@@ -3,6 +3,8 @@ from os.path import expanduser
 class Config:
 	CONFIG_DIR = f"{expanduser('~')}/.config/github/"
 	CONFIG_FILE = CONFIG_DIR + "userdata.json"
+	GRANT_TYPE = "urn:ietf:params:oauth:grant-type:device_code"
+	VERIFICATION_URL = "https://github.com/login/device"
 
 	CREATE_SESSION_URL = "https://github.com/login/device/code"
 	CHK_VERIFICATE_URL = "https://github.com/login/oauth/access_token"
