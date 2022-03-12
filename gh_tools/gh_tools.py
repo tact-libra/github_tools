@@ -31,7 +31,7 @@ class Tools(Account, Auth, Repo, User):
 	def run(self):
 		self.args = self.parser.parse_args()
 		if self.args.user:
-			if self.args.user in self.get_user_list():
+			if self.args.user in self._get_user_list():
 				self.select_user = self.args.user
 			else:
 				return print("Incorrect argument: user")

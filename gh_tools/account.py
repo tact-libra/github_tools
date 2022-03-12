@@ -31,9 +31,12 @@ class Account:
 		with open(Config.CONFIG_FILE, "w") as f:
 			json.dump(self.data, f, indent=4)
 
+	def _get_user_list(self):
+		return list(self.data)
+	
 	def get_user_list(self):
 		users = []
-		for i in self.data:
+		for i in self._get_user_list():
 			if i == self.get_default_user():
 				users.append(f"*{i}")
 			else:
