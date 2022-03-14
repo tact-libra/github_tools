@@ -70,9 +70,7 @@ class Auth:
 
 	def device_flow(self):
 		user_code, device_code = self._get_user_code()
-		print(f"""Open this link and enter code.
-			URL: {Config.VERIFICATION_URL}
-			code: {user_code}""")
+		print("\n  ".join([f"Open this link and enter code.", f"URL: {Config.VERIFICATION_URL}", f"code: {user_code}"]))
 		error, token = self._check_verify_request(device_code)
 		if not error:
 			return token
