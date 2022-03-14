@@ -22,7 +22,7 @@ class Tools(Account, Auth, Repo, User):
 		self.parser.add_argument('--version', action='version', version='%(prog)s 0.1')
 		self.parser.add_argument("--user", help="")
 		self.subparsers = self.parser.add_subparsers()
-	
+
 		Account.__init__(self)
 		Auth.__init__(self)
 		Repo.__init__(self)
@@ -51,11 +51,14 @@ class Tools(Account, Auth, Repo, User):
 			print("need to log in")
 		return result
 
-	
+
 
 
 def main():
-	Tools().run()
+	try:
+		Tools().run()
+	except KeyboardInterrupt:
+		print("ERROR: Operation cancelled by user")
 
 if __name__ == '__main__':
 	main()
