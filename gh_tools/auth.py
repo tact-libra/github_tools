@@ -22,7 +22,6 @@ def user_input(msg, _type):
 
 class Auth:
 	def __init__(self):
-		os.makedirs(f"{Config.CONFIG_DIR}", exist_ok=True)
 		#login
 		login = self.subparsers.add_parser("login", help=f"{self.cmd} login -h")
 		login.add_argument("--token", action='store_true', help="login using token")

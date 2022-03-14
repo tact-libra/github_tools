@@ -3,6 +3,7 @@ from .config import Config
 
 class Account:
 	def __init__(self):
+		os.makedirs(f"{Config.CONFIG_DIR}", exist_ok=True)
 		if os.path.isfile(Config.CONFIG_FILE):
 			with open(Config.CONFIG_FILE) as f:
 				self.data = json.load(f)
