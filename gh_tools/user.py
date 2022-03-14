@@ -2,6 +2,7 @@ from requests import (
 	get,
 	post
 )
+from .config import Config
 
 class User:
 	def __init__(self):
