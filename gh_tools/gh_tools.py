@@ -9,7 +9,7 @@ from .config import Config
 from .account import Account
 from .auth import Auth
 from .repo import Repo
-from .uesr import User
+from .user import User
 
 class Tools(Account, Auth, Repo, User):
 	cmd = os.path.splitext(os.path.basename(__file__))[0]
