@@ -1,4 +1,4 @@
-import time, os, import webbrowser
+import time, os, webbrowser
 from requests import (
 	get,
 	post
