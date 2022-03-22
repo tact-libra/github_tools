@@ -1,4 +1,4 @@
-import time, os
+import time, os, import webbrowser
 from requests import (
 	get,
 	post
@@ -70,6 +70,7 @@ class Auth:
 	def device_flow(self):
 		user_code, device_code = self._get_user_code()
 		print("\n  ".join([f"Open this link and enter code.", f"URL: {Config.VERIFICATION_URL}", f"code: {user_code}"]))
+		webbrowser.open(Config.VERIFICATION_URL)
 		error, token = self._check_verify_request(device_code)
 		if not error:
 			return token
